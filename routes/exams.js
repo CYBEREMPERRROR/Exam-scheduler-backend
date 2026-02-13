@@ -1,17 +1,13 @@
-// Full backend code: app.js
+// routes/exams.js
 const express = require('express');
+const router = express.Router();
 const { Pool } = require('pg');
 require('dotenv').config();
-
-const app = express();
-app.use(express.json());
 
 // PostgreSQL pool
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: {
-        rejectUnauthorized: false
-    }
+    ssl: { rejectUnauthorized: false }
 });
 
 // Access key middleware
@@ -24,7 +20,7 @@ const requireAccessKey = (req, res, next) => {
 };
 
 // Exams POST route
-app.post('/exams', requireAccessKey, async (req, res) => {
+router.post('/', requireAccessKey, async (req, res) => {
     const { course_code, department, level, venue_id, exam_date, start_time, end_time, number_of_students } = req.body;
 
     if (!course_code || !department || !level || !venue_id || !exam_date || !start_time || !end_time || !number_of_students) {
@@ -45,8 +41,8 @@ app.post('/exams', requireAccessKey, async (req, res) => {
 
         // Clash detection
         const clashQuery = `
-            SELECT * FROM exams 
-            WHERE exam_date = $1 
+            SELECT * FROM exams
+            WHERE exam_date = $1
             AND (
                 venue_id = $2
                 OR (department = $3 AND level = $4)
@@ -77,6 +73,4 @@ app.post('/exams', requireAccessKey, async (req, res) => {
     }
 });
 
-// Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+module.exports = router; // <-- important

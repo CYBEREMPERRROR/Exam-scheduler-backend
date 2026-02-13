@@ -7,7 +7,10 @@ const examsRouter = require('./routes/exams');
 const app = express();
 app.use(express.json());
 
-app.use('/exams', examsRouter);  // <-- NO parentheses here
+app.use('/exams', examsRouter);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Optional: simple GET / to test in browser
+app.get('/', (req, res) => res.send('Exam Scheduler Backend is running'));
