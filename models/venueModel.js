@@ -1,0 +1,47 @@
+// models/venueModel.js
+import { pool } from '../db.js';
+
+/**
+ * Venue Model
+ * Handles exam venues and their capacities
+ */
+
+export const VenueModel = {
+  // Create a new venue (faculty only)
+  async createVenue({ venue_name, capacity }) {
+    const query = `
+      INSERT INTO venues (venue_name, capacity)
+      VALUES ($1, $2)
+      RETURNING *;
+    `;
+    const { rows } = await pool.query(query, [venue_name, capacity]);
+    return rows[0];
+  },
+
+  // Get all venues
+  async getAllVenues() {
+    const query = `SELECT * FROM venues ORDER BY venue_name;`;
+    const { rows } = await pool.query(query);
+    return rows;
+  },
+
+  // Get a single venue by ID
+  async getVenueById(id) {
+    const query = `SELECT * FROM venues WHERE id = $1`;
+    const { rows } = await pool.query(query, [id]);
+    return rows[0]; // undefined if not found
+  },
+
+  // Get venue capacity (useful for clash detection)
+  async getVenueCapacity(id) {
+    const venue = await this.getVenueById(id);
+    return venue ? venue.capacity : null;
+  },
+
+  // Optional: delete a venue
+  async deleteVenue(id) {
+    const query = `DELETE FROM venues WHERE id = $1 RETURNING *;`;
+    const { rows } = await pool.query(query, [id]);
+    return rows[0];
+  },
+};
